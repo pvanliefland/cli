@@ -109,6 +109,20 @@ const (
 	PostgresConfigResponseSessionReplicationRoleReplica PostgresConfigResponseSessionReplicationRole = "replica"
 )
 
+// Defines values for ProjectDetailResponseStatus.
+const (
+	ProjectDetailResponseStatusACTIVEHEALTHY   ProjectDetailResponseStatus = "ACTIVE_HEALTHY"
+	ProjectDetailResponseStatusACTIVEUNHEALTHY ProjectDetailResponseStatus = "ACTIVE_UNHEALTHY"
+	ProjectDetailResponseStatusCOMINGUP        ProjectDetailResponseStatus = "COMING_UP"
+	ProjectDetailResponseStatusGOINGDOWN       ProjectDetailResponseStatus = "GOING_DOWN"
+	ProjectDetailResponseStatusINACTIVE        ProjectDetailResponseStatus = "INACTIVE"
+	ProjectDetailResponseStatusINITFAILED      ProjectDetailResponseStatus = "INIT_FAILED"
+	ProjectDetailResponseStatusREMOVED         ProjectDetailResponseStatus = "REMOVED"
+	ProjectDetailResponseStatusRESTORING       ProjectDetailResponseStatus = "RESTORING"
+	ProjectDetailResponseStatusUNKNOWN         ProjectDetailResponseStatus = "UNKNOWN"
+	ProjectDetailResponseStatusUPGRADING       ProjectDetailResponseStatus = "UPGRADING"
+)
+
 // Defines values for ProjectPgBouncerConfigPgbouncerStatus.
 const (
 	ProjectPgBouncerConfigPgbouncerStatusCOMINGDOWN ProjectPgBouncerConfigPgbouncerStatus = "COMING_DOWN"
@@ -143,11 +157,11 @@ const (
 
 // Defines values for UpdatePoolingConfigResponsePgbouncerStatus.
 const (
-	UpdatePoolingConfigResponsePgbouncerStatusCOMINGDOWN UpdatePoolingConfigResponsePgbouncerStatus = "COMING_DOWN"
-	UpdatePoolingConfigResponsePgbouncerStatusCOMINGUP   UpdatePoolingConfigResponsePgbouncerStatus = "COMING_UP"
-	UpdatePoolingConfigResponsePgbouncerStatusDISABLED   UpdatePoolingConfigResponsePgbouncerStatus = "DISABLED"
-	UpdatePoolingConfigResponsePgbouncerStatusENABLED    UpdatePoolingConfigResponsePgbouncerStatus = "ENABLED"
-	UpdatePoolingConfigResponsePgbouncerStatusRELOADING  UpdatePoolingConfigResponsePgbouncerStatus = "RELOADING"
+	COMINGDOWN UpdatePoolingConfigResponsePgbouncerStatus = "COMING_DOWN"
+	COMINGUP   UpdatePoolingConfigResponsePgbouncerStatus = "COMING_UP"
+	DISABLED   UpdatePoolingConfigResponsePgbouncerStatus = "DISABLED"
+	ENABLED    UpdatePoolingConfigResponsePgbouncerStatus = "ENABLED"
+	RELOADING  UpdatePoolingConfigResponsePgbouncerStatus = "RELOADING"
 )
 
 // Defines values for UpdatePoolingConfigResponsePoolMode.
@@ -469,6 +483,31 @@ type PostgrestConfigWithJWTSecretResponse struct {
 	MaxRows           int     `json:"max_rows"`
 }
 
+// ProjectDetailResponse defines model for ProjectDetailResponse.
+type ProjectDetailResponse struct {
+	CloudProvider             string                      `json:"cloud_provider"`
+	ConnectionString          string                      `json:"connectionString"`
+	DbVersion                 *string                     `json:"dbVersion,omitempty"`
+	DbHost                    string                      `json:"db_host"`
+	Id                        float32                     `json:"id"`
+	InsertedAt                string                      `json:"inserted_at"`
+	KpsVersion                *string                     `json:"kpsVersion,omitempty"`
+	LastDatabaseResizeAt      *string                     `json:"lastDatabaseResizeAt,omitempty"`
+	MaxDatabasePreprovisionGb *float32                    `json:"maxDatabasePreprovisionGb,omitempty"`
+	Name                      string                      `json:"name"`
+	OrganizationId            float32                     `json:"organization_id"`
+	Ref                       string                      `json:"ref"`
+	Region                    string                      `json:"region"`
+	RestUrl                   string                      `json:"restUrl"`
+	ServiceVersions           *ServiceVersions            `json:"serviceVersions,omitempty"`
+	Status                    ProjectDetailResponseStatus `json:"status"`
+	SubscriptionId            string                      `json:"subscription_id"`
+	VolumeSizeGb              *float32                    `json:"volumeSizeGb,omitempty"`
+}
+
+// ProjectDetailResponseStatus defines model for ProjectDetailResponse.Status.
+type ProjectDetailResponseStatus string
+
 // ProjectPgBouncerConfig defines model for ProjectPgBouncerConfig.
 type ProjectPgBouncerConfig struct {
 	DbDnsName               string                                `json:"db_dns_name"`
@@ -491,6 +530,13 @@ type ProjectPgBouncerConfigPgbouncerStatus string
 
 // ProjectPgBouncerConfigPoolMode defines model for ProjectPgBouncerConfig.PoolMode.
 type ProjectPgBouncerConfigPoolMode string
+
+// ProjectRefResponse defines model for ProjectRefResponse.
+type ProjectRefResponse struct {
+	Id   float32 `json:"id"`
+	Name string  `json:"name"`
+	Ref  string  `json:"ref"`
+}
 
 // ProjectResponse defines model for ProjectResponse.
 type ProjectResponse struct {
@@ -561,6 +607,13 @@ type SamlDescriptor struct {
 type SecretResponse struct {
 	Name  string `json:"name"`
 	Value string `json:"value"`
+}
+
+// ServiceVersions defines model for ServiceVersions.
+type ServiceVersions struct {
+	Gotrue           string `json:"gotrue"`
+	Postgrest        string `json:"postgrest"`
+	SupabasePostgres string `json:"supabase-postgres"`
 }
 
 // SslEnforcementRequest defines model for SslEnforcementRequest.
@@ -669,6 +722,11 @@ type UpdatePostgrestConfigBody struct {
 	MaxRows           *int    `json:"max_rows,omitempty"`
 }
 
+// UpdateProjectBody defines model for UpdateProjectBody.
+type UpdateProjectBody struct {
+	Name string `json:"name"`
+}
+
 // UpdateProviderBody defines model for UpdateProviderBody.
 type UpdateProviderBody struct {
 	AttributeMapping *AttributeMapping `json:"attribute_mapping,omitempty"`
@@ -730,7 +788,7 @@ type TokenParams struct {
 	ClientSecret string               `form:"client_secret" json:"client_secret"`
 	Code         *string              `form:"code,omitempty" json:"code,omitempty"`
 	CodeVerifier *string              `form:"code_verifier,omitempty" json:"code_verifier,omitempty"`
-	RedirectUri  string               `form:"redirect_uri" json:"redirect_uri"`
+	RedirectUri  *string              `form:"redirect_uri,omitempty" json:"redirect_uri,omitempty"`
 	RefreshToken *string              `form:"refresh_token,omitempty" json:"refresh_token,omitempty"`
 }
 
@@ -776,6 +834,9 @@ type CreateOrganizationJSONRequestBody = CreateOrganizationBody
 
 // CreateProjectJSONRequestBody defines body for CreateProject for application/json ContentType.
 type CreateProjectJSONRequestBody = CreateProjectBody
+
+// UpdateProjectJSONRequestBody defines body for UpdateProject for application/json ContentType.
+type UpdateProjectJSONRequestBody = UpdateProjectBody
 
 // CreateProviderForProjectJSONRequestBody defines body for CreateProviderForProject for application/json ContentType.
 type CreateProviderForProjectJSONRequestBody = CreateProviderBody

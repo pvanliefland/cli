@@ -175,7 +175,7 @@ paths:
           schema:
             type: string
         - name: redirect_uri
-          required: true
+          required: false
           in: query
           schema:
             type: string
@@ -1415,7 +1415,6 @@ paths:
         - projects config
       security: &ref_36
         - bearer: []
-        - bearer: []
     patch:
       operationId: updatePgbouncerConfig
       summary: Updates project's pgbouncer config
@@ -1447,6 +1446,84 @@ paths:
           description: Failed to update project's pgbouncer config
       tags: *ref_35
       security: *ref_36
+  /v1/projects/{ref}:
+    get:
+      operationId: getProject
+      summary: Gets a specific project that belongs to the authenticated user
+      parameters:
+        - name: ref
+          required: true
+          in: path
+          description: Project ref
+          schema:
+            minLength: 20
+            maxLength: 20
+            type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectDetailResponse'
+      tags: &ref_37
+        - projects
+      security: &ref_38
+        - bearer: []
+    delete:
+      operationId: deleteProject
+      summary: Deletes the given project
+      parameters:
+        - name: ref
+          required: true
+          in: path
+          description: Project ref
+          schema:
+            minLength: 20
+            maxLength: 20
+            type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectRefResponse'
+        '403':
+          description: ''
+      tags: *ref_37
+      security: *ref_38
+    patch:
+      operationId: updateProject
+      summary: Updates the given project
+      parameters:
+        - name: ref
+          required: true
+          in: path
+          description: Project ref
+          schema:
+            minLength: 20
+            maxLength: 20
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateProjectBody'
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectRefResponse'
+        '403':
+          description: ''
+        '500':
+          description: Failed to update project
+      tags: *ref_37
+      security: *ref_38
   /v1/projects/{ref}/config/auth/sso/providers:
     post:
       operationId: createProviderForProject
@@ -1477,9 +1554,9 @@ paths:
           description: ''
         '404':
           description: SAML 2.0 support is not enabled for this project
-      tags: &ref_37
+      tags: &ref_39
         - sso
-      security: &ref_38
+      security: &ref_40
         - bearer: []
     get:
       operationId: listAllProviders
@@ -1504,8 +1581,8 @@ paths:
           description: ''
         '404':
           description: SAML 2.0 support is not enabled for this project
-      tags: *ref_37
-      security: *ref_38
+      tags: *ref_39
+      security: *ref_40
   /v1/projects/{ref}/config/auth/sso/providers/{provider_id}:
     get:
       operationId: getProviderById
@@ -1537,8 +1614,8 @@ paths:
           description: >-
             Either SAML 2.0 was not enabled for this project, or the provider
             does not exist
-      tags: *ref_37
-      security: *ref_38
+      tags: *ref_39
+      security: *ref_40
     put:
       operationId: updateProviderById
       summary: Updates a SSO provider by its UUID
@@ -1575,8 +1652,8 @@ paths:
           description: >-
             Either SAML 2.0 was not enabled for this project, or the provider
             does not exist
-      tags: *ref_37
-      security: *ref_38
+      tags: *ref_39
+      security: *ref_40
     delete:
       operationId: removeProviderById
       summary: Removes a SSO provider by its UUID
@@ -1607,8 +1684,8 @@ paths:
           description: >-
             Either SAML 2.0 was not enabled for this project, or the provider
             does not exist
-      tags: *ref_37
-      security: *ref_38
+      tags: *ref_39
+      security: *ref_40
 info:
   title: Supabase API (v1)
   description: ''
@@ -1763,7 +1840,7 @@ components:
         name:
           type: string
         status:
-          enum: &ref_39
+          enum: &ref_41
             - ACTIVE
             - REMOVED
             - THROTTLED
@@ -1800,7 +1877,7 @@ components:
         name:
           type: string
         status:
-          enum: *ref_39
+          enum: *ref_41
           type: string
         version:
           type: number
@@ -2354,7 +2431,7 @@ components:
         pgbouncer_enabled:
           type: boolean
         pool_mode:
-          enum: &ref_40
+          enum: &ref_42
             - transaction
             - session
             - statement
@@ -2381,7 +2458,7 @@ components:
         pgbouncer_enabled:
           type: boolean
         pool_mode:
-          enum: *ref_40
+          enum: *ref_42
           type: string
         pgbouncer_status:
           enum:
@@ -2397,6 +2474,102 @@ components:
         - pgbouncer_enabled
         - pool_mode
         - pgbouncer_status
+    ServiceVersions:
+      type: object
+      properties:
+        gotrue:
+          type: string
+        postgrest:
+          type: string
+        supabase-postgres:
+          type: string
+      required:
+        - gotrue
+        - postgrest
+        - supabase-postgres
+    ProjectDetailResponse:
+      type: object
+      properties:
+        cloud_provider:
+          type: string
+        db_host:
+          type: string
+        id:
+          type: number
+        inserted_at:
+          type: string
+        name:
+          type: string
+        organization_id:
+          type: number
+        ref:
+          type: string
+        region:
+          type: string
+        status:
+          enum:
+            - INACTIVE
+            - ACTIVE_HEALTHY
+            - ACTIVE_UNHEALTHY
+            - COMING_UP
+            - UNKNOWN
+            - GOING_DOWN
+            - INIT_FAILED
+            - REMOVED
+            - RESTORING
+            - UPGRADING
+          type: string
+        subscription_id:
+          type: string
+        connectionString:
+          type: string
+        kpsVersion:
+          type: string
+        dbVersion:
+          type: string
+        restUrl:
+          type: string
+        serviceVersions:
+          $ref: '#/components/schemas/ServiceVersions'
+        volumeSizeGb:
+          type: number
+        maxDatabasePreprovisionGb:
+          type: number
+        lastDatabaseResizeAt:
+          type: string
+      required:
+        - cloud_provider
+        - db_host
+        - id
+        - inserted_at
+        - name
+        - organization_id
+        - ref
+        - region
+        - status
+        - subscription_id
+        - connectionString
+        - restUrl
+    ProjectRefResponse:
+      type: object
+      properties:
+        id:
+          type: number
+        ref:
+          type: string
+        name:
+          type: string
+      required:
+        - id
+        - ref
+        - name
+    UpdateProjectBody:
+      type: object
+      properties:
+        name:
+          type: string
+      required:
+        - name
     AttributeValue:
       type: object
       properties:

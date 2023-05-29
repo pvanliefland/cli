@@ -12,6 +12,7 @@ import (
 	"github.com/spf13/viper"
 	"github.com/supabase/cli/internal/link"
 	"github.com/supabase/cli/internal/projects/create"
+	"github.com/supabase/cli/internal/projects/delete"
 	"github.com/supabase/cli/internal/projects/list"
 	"github.com/supabase/cli/internal/utils"
 	"github.com/supabase/cli/pkg/api"
@@ -72,6 +73,18 @@ var (
 			return list.Run(cmd.Context(), afero.NewOsFs())
 		},
 	}
+
+	projectsDeleteCmd = &cobra.Command{
+		Use:   "delete <ref>",
+		Short: "Delete a Supabase project",
+		Args:  cobra.ExactArgs(1),
+		PreRunE: func(cmd *cobra.Command, args []string) error {
+			return delete.PreRun(args[0])
+		},
+		RunE: func(cmd *cobra.Command, args []string) error {
+			return delete.Run(cmd.Context(), args[0], afero.NewOsFs())
+		},
+	}
 )
 
 func init() {
@@ -92,6 +105,7 @@ func init() {
 	cobra.CheckErr(viper.BindPFlag("DB_PASSWORD", createFlags.Lookup("db-password")))
 	// Add commands to root
 	projectsCmd.AddCommand(projectsCreateCmd)
+	projectsCmd.AddCommand(projectsDeleteCmd)
 	projectsCmd.AddCommand(projectsListCmd)
 	rootCmd.AddCommand(projectsCmd)
 }
